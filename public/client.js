@@ -269,10 +269,12 @@ function startGame() {
     camera.position.copy(targetPos);
     camera.lookAt(tankPos);
 
-    const serverIP = window.location.hostname === 'localhost' ? 'localhost' : '172.16.0.49';
-    ws = new WebSocket(`ws://${serverIP}:8080`);
+    const serverHost = window.location.hostname;
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    ws = new WebSocket(`${wsProtocol}${serverHost}`);
+
     ws.onopen = () => {
-      console.log(`WebSocket connected to ws://${serverIP}:8080`);
+      console.log(`WebSocket connected to ${wsProtocol}${serverHost}`);
       ws.send(JSON.stringify({ type: 'setName', name: username, tankType: tankType }));
     };
     ws.onerror = (err) => console.error('WebSocket error:', err);
