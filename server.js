@@ -2,9 +2,9 @@ const express = require('express');
 const { Server, WebSocket } = require('ws');
 const { v4: uuidv4 } = require('uuid');
 const app = express();
+const PORT = process.env.PORT || 8080; // Dynamic port for Render, 8080 for local
 
-
-const PORT = process.env.PORT || 8080;
+app.use(express.static('public'));
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT} and bound to 0.0.0.0`);
 });
@@ -145,8 +145,8 @@ wss.on('connection', (ws) => {
       }, ws);
     } else if (data.type === 'hit') {
       const targetId = data.targetId;
-      const shooterId = data.shooterId;
-      if (players[targetId] && players[targetId].hp > 0) { // Only process if target is alive
+      if (players[targetId]) {
+        const shooterId = data.shooterId;
         players[targetId].hp -= players[shooterId].damage;
         console.log(`Player ${shooterId} hit ${targetId}. HP now: ${players[targetId].hp}`);
         broadcast({
@@ -157,14 +157,14 @@ wss.on('connection', (ws) => {
 
         if (players[targetId].hp <= 0 && targetId !== shooterId) {
           players[shooterId].kills = (players[shooterId].kills || 0) + 1;
-          players[targetId].kills = 0;
+          players[targetId].kills = 0; // Reset kills on death
           broadcast({
             type: 'kill',
             killerId: shooterId,
             victimId: targetId,
             killerName: players[shooterId].name,
             killerKills: players[shooterId].kills,
-            victimKills: players[targetId].kills
+            victimKills: players[targetId].kills // Send updated victim kills
           });
           console.log(`Player ${targetId} died, kills reset to 0. ${shooterId} kills: ${players[shooterId].kills}`);
         }
@@ -179,7 +179,7 @@ wss.on('connection', (ws) => {
         z: spawnZ,
         rotY: 0,
         hp: tankTypes[tankType].maxHP,
-        kills: 0,
+        kills: 0, // Ensure kills start at 0 on respawn
         name: players[playerId].name,
         tankType: tankType,
         maxHP: tankTypes[tankType].maxHP,

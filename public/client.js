@@ -212,7 +212,7 @@ bottomLine.style.position = 'absolute';
 bottomLine.style.left = '50%';
 bottomLine.style.top = '0';
 bottomLine.style.transform = 'translateX(-50%)';
-crosshair.appendChild(bottomLine); // Fixed below
+crosshair.appendChild(bottomLine); // Fixed to bottomLine
 
 const leftLine = document.createElement('div');
 leftLine.style.width = `${lineLength}px`;
@@ -269,8 +269,10 @@ function startGame() {
     camera.position.copy(targetPos);
     camera.lookAt(tankPos);
 
-    const serverHost = window.location.hostname;
+    // Dynamic WebSocket URL
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '';
     const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const serverHost = isLocalhost ? 'localhost:8080' : window.location.host;
     ws = new WebSocket(`${wsProtocol}${serverHost}`);
 
     ws.onopen = () => {
