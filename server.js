@@ -2,9 +2,9 @@ const express = require('express');
 const { Server, WebSocket } = require('ws');
 const { v4: uuidv4 } = require('uuid');
 const app = express();
-const PORT = 8080;
 
-app.use(express.static('public'));
+
+const PORT = process.env.PORT || 8080;
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT} and bound to 0.0.0.0`);
 });
